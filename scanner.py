@@ -9,7 +9,7 @@ import subprocess
 
 PORT_NUMBER = 5010
 SIZE = 1024
-hostName = gethostbyname( '192.168.192.33')#gethostname() )
+hostName = gethostbyname( '')#gethostname() )
 mySocket = socket( AF_INET, SOCK_DGRAM )
 mySocket.bind( (hostName, PORT_NUMBER) ) 
 
@@ -22,7 +22,7 @@ scan_folder = ["Arzt/", "Bank/", "Wohnung/", "Arbeit/", "KFZ/", "Reisen/", "Shop
 
 def scan(folder, color, mail, adress, druck):
     zeit =  time.time()
-    filent = "~/MIsc/Autoscan/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".tif"
+    filent = "~/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".tif"
     filenp = "~/MIsc/Autoscan/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
     if color:
         exectext = "scanimage -d '"+ scanner +"' --format=tiff --resolution 300dpi --mode Color 2>&1 > " + filent
