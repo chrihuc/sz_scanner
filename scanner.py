@@ -9,7 +9,7 @@ import subprocess
 
 PORT_NUMBER = 5010
 SIZE = 1024
-hostName = gethostbyname( '192.168.192.33')#gethostname() )
+hostName = gethostbyname( '')#gethostname() )
 mySocket = socket( AF_INET, SOCK_DGRAM )
 mySocket.bind( (hostName, PORT_NUMBER) ) 
 
@@ -32,6 +32,7 @@ def scan(folder, color, mail, adress, druck):
     os.system(exectext)
     #exectext = "tiff2pdf -z -j " + filent + " -o " + filenp
     exectext = "convert " + filent + " " + filenp
+    print exectext
     os.system(exectext)
     exectext = "rm " + filent
     os.system(exectext)
