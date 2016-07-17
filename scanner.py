@@ -16,6 +16,9 @@ mySocket.bind( (hostName, PORT_NUMBER) )
 scanner = subprocess.Popen(["/usr/bin/scanimage", "--list-devices"], stdout=subprocess.PIPE).communicate()[0]
 scanner = str(scanner)[8:30]
 
+while os.system("sudo mount -a") <> 0:
+    time.sleep(10)
+
 print scanner
 
 scan_folder = ["Arzt/", "Bank/", "Wohnung/", "Arbeit/", "KFZ/", "Reisen/", "Shopping/", "sonstiges/", "Schule/", "Dokumente/", "Verwaltung/", "Archive/"]
