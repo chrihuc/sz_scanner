@@ -21,6 +21,8 @@ while os.system("sudo mount -a") <> 0:
 
 print scanner
 
+print os.system("sudo systemctl start saned.socket")
+
 scan_folder = ["Arzt/", "Bank/", "Wohnung/", "Arbeit/", "KFZ/", "Reisen/", "Shopping/", "sonstiges/", "Schule/", "Dokumente/", "Verwaltung/", "Archive/"]
 
 def scan(folder, color, mail, adress, druck):
