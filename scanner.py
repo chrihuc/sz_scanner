@@ -25,19 +25,29 @@ print os.system("sudo systemctl start saned.socket")
 
 scan_folder = ["Arzt/", "Bank/", "Wohnung/", "Arbeit/", "KFZ/", "Reisen/", "Shopping/", "sonstiges/", "Schule/", "Dokumente/", "Verwaltung/", "Archive/"]
 
-def scan(folder, color, mail, adress, druck):
+def check_folder(location):
+    if not os.path.exists(location):
+        os.makedirs(location)
+        os.chmod(location, 0777)    
+
+def scan(folder, color=True, mail=False, adress="", druck=False):
     zeit =  time.time()
     filent = "~/" + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".tif"
-    filenp = "~/MIsc/Autoscan/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
+    if isinstance(folder, (int, long)):
+        filenp = "~/MIsc/Autoscan/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
+    else:
+        path = "~/MIsc/Autoscan/" + folder + "/"
+        check_folder(path)
+        filenp = path + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
     if color:
         exectext = "scanimage -d '"+ scanner +"' --format=tiff --resolution 300dpi --mode Color 2>&1 > " + filent
     else:
         exectext = "scanimage -d '"+ scanner +"' --format=tiff --resolution 300dpi 2>&1 > " + filent
-    print exectext
+#    print exectext
     os.system(exectext)
     #exectext = "tiff2pdf -z -j " + filent + " -o " + filenp
     exectext = "convert " + filent + " " + filenp
-    print exectext
+#    print exectext
     os.system(exectext)
     exectext = "rm " + filent
     os.system(exectext)
@@ -98,5 +108,7 @@ while True:
                 elif (data == "scan16"):
                     scan(7,True,False, "", False) 
                 elif (data == "scan_color"):
-                    scan(7,True,False, "")      
+                    scan(7,True,False, "")    
+                else:
+                    scan(data)    
            
