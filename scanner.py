@@ -36,7 +36,7 @@ def scan(folder, color=True, mail=False, adress="", druck=False):
     if isinstance(folder, (int, long)):
         filenp = "~/MIsc/Autoscan/" + scan_folder[folder] + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
     else:
-        path = "~/MIsc/Autoscan/" + folder + "/"
+        path = "/home/pi/MIsc/Autoscan/" + folder + "/"
         check_folder(path)
         filenp = path + str(strftime("%Y-%m-%d-%H-%M-%S",localtime(zeit))) +".jpg"
     if color:
