@@ -124,7 +124,7 @@ def on_message(client, userdata, msg):
             #pass
         elif 'Device' in m_in.keys():
 #           TODO threaded commands and stop if new comes in
-            if (m_in.get('Device')=='Vm1ZIM1SCA1DO01'):
+            if (m_in.get('Device')=='Vm1ZIM1SCA1DO01') and not retained:
                 data = m_in.get('Name')
                 print data
                 if (data == "scan1"):
