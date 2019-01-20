@@ -167,5 +167,5 @@ def on_message(client, userdata, msg):
         pass
 
 
-
-
+while constants.run:
+    time.sleep(10)
