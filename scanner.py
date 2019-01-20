@@ -166,6 +166,7 @@ def on_message(client, userdata, msg):
     except:
         pass
 
+connect(ipaddress, port)
 
-while constants.run:
-    time.sleep(10)
+#while constants.run:
+#    time.sleep(10)
