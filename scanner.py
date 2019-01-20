@@ -7,11 +7,15 @@ import time
 from time import localtime,strftime
 import subprocess
 
+import paho.mqtt.client as mqtt
+import constants
+import json
+
 PORT_NUMBER = 5010
 SIZE = 1024
 hostName = gethostbyname( '')#gethostname() )
 mySocket = socket( AF_INET, SOCK_DGRAM )
-mySocket.bind( (hostName, PORT_NUMBER) ) 
+mySocket.bind( (hostName, PORT_NUMBER) )
 
 scanner = subprocess.Popen(["/usr/bin/scanimage", "--list-devices"], stdout=subprocess.PIPE).communicate()[0]
 scanner = str(scanner)[8:30]
@@ -28,7 +32,7 @@ scan_folder = ["Arzt/", "Bank/", "Wohnung/", "Arbeit/", "KFZ/", "Reisen/", "Shop
 def check_folder(location):
     if not os.path.exists(location):
         os.makedirs(location)
-        os.chmod(location, 0777)    
+        os.chmod(location, 0777)
 
 def scan(folder, color=True, mail=False, adress="", druck=False):
     zeit =  time.time()
@@ -58,22 +62,70 @@ def scan(folder, color=True, mail=False, adress="", druck=False):
     if druck:
         time.sleep(5)
         #lpr =  subprocess.Popen("/usr/bin/lpr", stdin=subprocess.PIPE)
-        #lpr.stdin.write(filenp)  
+        #lpr.stdin.write(filenp)
         exectext = "cat '"+filenp+"' | lpr"
-        os.system(exectext)        
+        os.system(exectext)
 
-while True:
-        (data,addr) = mySocket.recvfrom(SIZE)
-        isdict = False
-        try:
-            data_ev = eval(data)
-            if type(data_ev) is dict:
-                isdict = True
-        except Exception as serr:
-            isdict = False 
-        if isdict:
-            if (data_ev.get('Device')=='Vm1ZIM1SCA1DO01'):
-                data = data_ev.get('Name')
+
+mqtt.Client.connected_flag=False
+client = None
+topics = ["Command/" + constants.name + "/#"]
+ipaddress = constants.mqtt_.server
+port = 1883
+
+def connect(ipaddress, port):
+    global client
+    zeit =  time.time()
+    uhr = str(strftime("%Y-%m-%d %H:%M:%S",localtime(zeit)))
+    client = mqtt.Client(constants.name +'_sub_' + uhr, clean_session=False)
+    assign_handlers(on_connect, dis_con, on_message)
+    client.username_pw_set(username=constants.mqtt_.user,password=constants.mqtt_.password)
+    client.connect(ipaddress, port, 60)
+#    client.loop_start()
+    client.loop_forever()
+
+def assign_handlers(connect, disconnect, message):
+    """
+    :param mqtt.Client client:
+    :param connect:
+    :param message:
+    :return:
+    """
+
+    global client
+    client.on_connect = connect
+    client.on_disconnect = disconnect
+    client.on_message = message
+
+def dis_con (*args, **kargs):
+    print("disconnected")
+
+def on_connect(client_data, userdata, flags, rc):
+    global client, topics
+    if rc==0 and not client.connected_flag:
+        client.connected_flag=True #set flag
+        print("connected OK")
+        for topic in topics:
+            client.subscribe(topic)
+    elif client.connected_flag:
+        pass
+    else:
+        print("Bad connection Returned code=",rc)
+
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
+    retained = msg.retain
+    message = str(msg.payload.decode("utf-8"))
+    try:
+        m_in=(json.loads(message)) #decode json data
+        print(m_in)
+        if m_in['Name'] == "STOP" and not retained:
+            os.system("sudo killall python")
+            #pass
+        elif 'Device' in m_in.keys():
+#           TODO threaded commands and stop if new comes in
+            if (m_in.get('Device')=='Vm1ZIM1SCA1DO01'):
+                data = m_in.get('Name')
                 print data
                 if (data == "scan1"):
                     scan(0,True,False, "", False)
@@ -92,23 +144,28 @@ while True:
                 elif (data == "scan8"):
                     scan(7,True,True, "chrihuc@gmail.com", False)
                 elif (data == "scan9"):
-                    scan(7,True,True, "84sabina@gmail.com", False)     
+                    scan(7,True,True, "84sabina@gmail.com", False)
                 elif (data == "scan10"):
-                    scan(7,False,False, "", True)   
+                    scan(7,False,False, "", True)
                 elif (data == "scan11"):
-                    scan(7,True,False, "", True)      
+                    scan(7,True,False, "", True)
                 elif (data == "scan12"):
                     scan(8,True,False, "", False)
                 elif (data == "scan13"):
-                    scan(9,True,False, "", True)      
+                    scan(9,True,False, "", True)
                 elif (data == "scan14"):
-                    scan(10,True,False, "", False)  
+                    scan(10,True,False, "", False)
                 elif (data == "scan15"):
-                    scan(11,True,False, "", False)              
+                    scan(11,True,False, "", False)
                 elif (data == "scan16"):
-                    scan(7,True,False, "", False) 
+                    scan(7,True,False, "", False)
                 elif (data == "scan_color"):
-                    scan(7,True,False, "")    
+                    scan(7,True,False, "")
                 else:
-                    scan(data)    
-           
+                    scan(data)
+    except:
+        pass
+
+
+
+
